@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0d12">
+<title>Camera2 — Kamera Pintar · bawapi-katak</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/img/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div id="app">
+  <!-- PANGGUNG KAMERA -->
+  <div id="stage">
+    <video id="video" autoplay playsinline muted></video>
+    <div class="grid-overlay" id="grid"></div>
+    <div class="level hidden" id="level">0.0°</div>
+    <div class="level-bar hidden" id="levelBar"><div class="level-dot" id="levelDot"></div></div>
+    <div class="timer-overlay hidden" id="timer"><span id="timerNum">3</span></div>
+    <div class="flash" id="flash"></div>
+    <div class="watermark" id="wm">CAMERA2 · bawapi-katak</div>
+    <div class="rec-dot hidden" id="rec"><div class="dot"></div>REC</div>
+
+    <div class="topbar">
+      <button class="chip" id="switchCam">⇄ Ganti kamera</button>
+      <button class="chip" id="flip">⇋ Mirror</button>
+      <button class="chip" id="wmToggle">◇ Watermark</button>
+    </div>
+
+    <div id="err" class="hidden">
+      <div style="font-size:40px">◉</div>
+      <h2 style="color:var(--ink)">Kamera belum tersedia</h2>
+      <p>Izinkan akses kamera, atau tidak ada kamera terhubung.</p>
+      <button class="gbtn ghost" id="retryCam">Coba lagi</button>
+    </div>
+  </div>
+
+  <!-- RAK KONTROL -->
+  <aside id="rack">
+    <div class="panel">
+      <h4>Rasio</h4>
+      <div class="seg" id="aspectSeg">
+        <button data-aspect="4:3" class="active">4:3</button>
+        <button data-aspect="16:9">16:9</button>
+        <button data-aspect="1:1">1:1</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h4>Resolusi (otomatis pakai yang didukung)</h4>
+      <select id="resSel"></select>
+    </div>
+
+    <div class="panel">
+      <h4>Grid & Level</h4>
+      <div class="row">
+        <button class="iconbtn" id="gridBtn" title="Grid 3×3">#</button>
+        <button class="iconbtn" id="levelBtn" title="Level (kiri–kanan)">≡</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h4>Filter</h4>
+      <div class="seg" id="filterSeg">
+        <button data-filter="none" class="active">Normal</button>
+        <button data-filter="bnw">B&amp;W</button>
+        <button data-filter="sepia">Sepia</button>
+        <button data-filter="golden">Golden</button>
+        <button data-filter="neon">Neon</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h4>Zoom — <span id="zoomLbl">1.0×</span></h4>
+      <input type="range" id="zoom" min="1" max="100" step="0.5" value="1">
+    </div>
+
+    <div class="panel">
+      <h4>TERANG / KONTRAS</h4>
+      <div class="row" style="flex-direction:column;gap:6px">
+        <input type="range" id="brightness" min="50" max="150" value="100" aria-label="Terang">
+        <input type="range" id="contrast" min="50" max="150" value="100" aria-label="Kontras">
+      </div>
+    </div>
+
+    <div class="panel">
+      <h4>Timer foto</h4>
+      <div class="seg" id="timerSeg">
+        <button data-t="0" class="active">Off</button>
+        <button data-t="3">3s</button>
+        <button data-t="5">5s</button>
+        <button data-t="10">10s</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h4>Ambil Foto</h4>
+      <div class="row" style="align-items:center;gap:10px">
+        <button class="gbtn" id="snap" style="flex:1;height:52px;font-size:17px;letter-spacing:1px">SNAP</button>
+        <button class="gbtn video" id="recBtn" title="Mode Vlog — rekam video"></button>
+      </div>
+      <button class="gbtn ghost" id="burstBtn" style="margin-top:8px;width:100%">Burst ×10 (tahan)</button>
+    </div>
+
+    <div class="panel">
+      <h4>Galeri</h4>
+      <div class="gallery" id="gallery"></div>
+    </div>
+  </aside>
+</div>
+
+<div id="bigview" class="hidden" role="dialog" aria-modal="true">
+  <button class="closerow" id="closeBig">Tutup</button>
+  <img id="bigImg" alt="Pratinjau">
+</div>
+
+<script src="assets/js/app.js"></script>
+</body>
+</html>
