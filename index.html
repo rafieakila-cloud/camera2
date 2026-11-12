@@ -16,7 +16,7 @@
     <video id="video" autoplay playsinline muted></video>
     <div class="grid-overlay" id="grid"></div>
     <div class="level hidden" id="level">0.0°</div>
-    <div class="level-bar hidden" id="levelBar"><div class="level-dot" id="levelDot"></div></div>
+    <div class="levelBar hidden" id="levelBar"><div class="levelDot" id="levelDot"></div></div>
     <div class="timer-overlay hidden" id="timer"><span id="timerNum">3</span></div>
     <div class="flash" id="flash"></div>
     <div class="watermark" id="wm">CAMERA2 · bawapi-katak</div>
@@ -28,8 +28,8 @@
       <button class="chip" id="wmToggle">◇ Watermark</button>
     </div>
 
-    <div id="err" class="hidden">
-      <div style="font-size:40px">◉</div>
+    <div id="err">
+      <div class="real">◉</div>
       <h2 style="color:var(--ink)">Kamera belum tersedia</h2>
       <p>Izinkan akses kamera, atau tidak ada kamera terhubung.</p>
       <button class="gbtn ghost" id="retryCam">Coba lagi</button>
@@ -110,7 +110,7 @@
   </aside>
 </div>
 
-<div id="bigview" class="hidden" role="dialog" aria-modal="true">
+<div id="bigview" role="dialog" aria-modal="true">
   <button class="closerow" id="closeBig">Tutup</button>
   <img id="bigImg" alt="Pratinjau">
 </div>

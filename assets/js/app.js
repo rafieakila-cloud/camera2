@@ -48,16 +48,16 @@ async function startCamera() {
   try {
     state.stream = await navigator.mediaDevices.getUserMedia(constraints);
     video.srcObject = state.stream;
-    $('#err').classList.add('hidden');
+    $('#err').classList.remove('show');
     populateResolutions();
   } catch (e) {
     try {
       state.stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
       video.srcObject = state.stream;
-      $('#err').classList.add('hidden');
+      $('#err').classList.remove('show');
       populateResolutions();
     } catch (e2) {
-      $('#err').classList.remove('hidden');
+      $('#err').classList.add('show');
     }
   }
 }
@@ -192,9 +192,9 @@ function renderGallery() {
   $$('img', g).forEach((img, i) => img.addEventListener('click', () => openBig(state.gallery[i])));
 }
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-function openBig(dataUrl) { $('#bigImg').src = dataUrl; $('#bigview').classList.remove('hidden'); }
-$('#closeBig').addEventListener('click', () => $('#bigview').classList.add('hidden'));
-$('#bigview').addEventListener('click', (e) => { if (e.target.id === 'bigview') $('#bigview').classList.add('hidden'); });
+function openBig(dataUrl) { $('#bigImg').src = dataUrl; $('#bigview').classList.add('open'); }
+$('#closeBig').addEventListener('click', () => $('#bigview').classList.remove('open'));
+$('#bigview').addEventListener('click', (e) => { if (e.target.id === 'bigview') $('#bigview').classList.remove('open'); });
 
 /* ========== Burst ========== */
 let burstHolding = false;
@@ -240,10 +240,9 @@ function saveRecording() {
 
 /* ========== UI bindings ========== */
 $('#gridBtn').addEventListener('click', () => { state.grid = !state.grid; $('#grid').classList.toggle('on', state.grid); $('#gridBtn').classList.toggle('active', state.grid); });
-$('#levelBtn').addEventListener('click', () => { state.level = !state.level; $('#level').classList.toggle('hidden', !state.level); $('#levelBar').classList.toggle('hidden', !state.level); $('#levelBtn').classList.toggle('active', state.level); });
 $('#wmToggle').addEventListener('click', () => { state.watermark = !state.watermark; $('#wm').classList.toggle('hidden', !state.watermark); $('#wmToggle').classList.toggle('active', state.watermark); });
 $('#switchCam').addEventListener('click', () => { state.facing = state.facing === 'user' ? 'environment' : 'user'; startCamera(); });
-$('#flip').addEventListener('click', () => { state.mirror = !state.mirror; if (state.facing === 'user') { state.mirror = true; } else { state.mirror = false; } updatePreview(); });
+$('#flip').addEventListener('click', () => { state.mirror = !state.mirror; updatePreview(); });
 $('#retryCam').addEventListener('click', startCamera);
 
 $('#zoom').addEventListener('input', e => { state.zoom = parseFloat(e.target.value); $('#zoomLbl').textContent = state.zoom.toFixed(1) + '×'; updatePreview(); });
@@ -269,7 +268,21 @@ $$('#filterSeg button').forEach(b => b.addEventListener('click', () => {
 }));
 
 /* ========== Level (sensor) ========== */
+const levelBtn = $('#levelBtn');
+let levelSupported = false;
+let levelGranted = false;
+
+async function tryEnableLevel() {
+  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+    try { levelGranted = (await DeviceOrientationEvent.requestPermission()) === 'granted'; }
+    catch (e) { levelGranted = false; }
+    return levelGranted;
+  }
+  return true; // browser non-iOS: no prompt required
+}
+
 window.addEventListener('deviceorientation', (e) => {
+  levelSupported = true;
   if (!state.level) return;
   const gamma = e.gamma == null ? 0 : e.gamma;
   const abs = Math.abs(gamma);
@@ -277,6 +290,25 @@ window.addEventListener('deviceorientation', (e) => {
   $('#level').classList.toggle('ok', abs < 2.5);
   const pct = Math.max(-1, Math.min(1, gamma / 30));
   $('#levelDot').style.left = (50 + pct * 44) + '%';
+});
+
+levelBtn.addEventListener('click', async () => {
+  if (!state.level) {
+    const ok = await tryEnableLevel();
+    if (!ok) {
+      levelBtn.setAttribute('title', 'Akses sensor ditolak');
+      alert('Akses sensor orientasi ditolak. Aktifkan di Pengaturan situs browsermu.');
+      return;
+    }
+  }
+  state.level = !state.level;
+  $('#level').classList.toggle('hidden', !state.level);
+  $('#levelBar').classList.toggle('hidden', !state.level);
+  levelBtn.classList.toggle('active', state.level);
+  if (state.level) {
+    // jika sensor asli tidak ada, peringatkan jujur
+    setTimeout(() => { if (!levelSupported) { $('#level').textContent = 'Sensor tidak tersedia'; $('#level').classList.add('hidden'); } }, 1200);
+  }
 });
 
 /* ========== Boot ========== */
